@@ -5,11 +5,14 @@ function setup
 
     @echo "setting temp \$reel_plugins_path: $reel_plugins_path"
 
+    set -g fake1 "a/fake1"
+    set -g fake2 "b/fake2"
+    set -g fake3 "b/fake3"
     if test "$argv[1]" = true || test "$argv[1]" = "fakes"
         @echo "Creating fake plugins..."
-        make_fake_plugin_structure fake1 functions
-        make_fake_plugin_structure fake2 functions conf.d
-        make_fake_plugin_structure fake3 functions conf.d completions
+        make_fake_plugin_structure $fake1 functions
+        make_fake_plugin_structure $fake2 functions conf.d
+        make_fake_plugin_structure $fake3 functions conf.d completions
     end
 
     @echo "sourcing reel"
@@ -23,12 +26,13 @@ end
 function make_fake_plugin_structure -a name
     for dirname in $argv[2..-1]
         mkdir -p $reel_plugins_path/$name/$dirname
-        set -l filename $reel_plugins_path/$name/$dirname/$name.fish
+        set -l repo_name (string split "/" -- $name)[2]
+        set -l filename $reel_plugins_path/$name/$dirname/$repo_name.fish
         switch "$dirname"
             case functions
-                make_fake_plugin_function $name > $filename
+                make_fake_plugin_function $repo_name > $filename
             case conf.d
-                make_fake_plugin_confd $name > $filename
+                make_fake_plugin_confd $repo_name > $filename
             case '*'
                 touch $filename
         end

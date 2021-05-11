@@ -1,5 +1,7 @@
 .DEFAULT_GOAL := help
 
+SHELL = bash -o pipefail
+
 .PHONY: test
 test:
 	./bin/runtests | ./bin/colorizetap

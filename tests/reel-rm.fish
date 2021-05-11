@@ -7,11 +7,11 @@ source $thisdir/includes/setup_teardown.fish
 setup "fakes"
 
 @echo "--- remove single plugin ---"
-@test 'fake1 plugin exists' -d $reel_plugins_path/fake1
-reel rm fake1 >/dev/null 2>&1
-@test "'reel rm fake1' command succeeds" $status -eq 0
-@test 'fake1 plugin no longer exists' ! -d $reel_plugins_path/fake1
-@test 'no other plugins were harmed' -d $reel_plugins_path/fake2
+@test "$fake1 plugin exists" -d $reel_plugins_path/$fake1
+reel rm $fake1 >/dev/null 2>&1
+@test "'reel rm $fake1' command succeeds" $status -eq 0
+@test "$fake1 plugin no longer exists" ! -d $reel_plugins_path/$fake1
+@test 'no other plugins were harmed' -d $reel_plugins_path/$fake2
 
 @echo "--- remove with no plugin specified ---"
 set reply (reel rm 2>&1)
@@ -30,12 +30,12 @@ string match -q 'reel: plugin path not safe to remove*' $reply[1]
 rm -rf $tricky_dir
 
 @echo "--- remove multiple plugins ---"
-@test 'fake2 plugin exists' -d $reel_plugins_path/fake2
-@test 'fake3 plugin exists' -d $reel_plugins_path/fake3
-reel rm fake2 fake3 >/dev/null 2>&1
-@test "'reel rm fake2 fake3' command succeeds" $status -eq 0
-@test 'fake2 plugin no longer exists' ! -d $reel_plugins_path/fake2
-@test 'fake3 plugin no longer exists' ! -d $reel_plugins_path/fake3
+@test "$fake2 plugin exists" -d $reel_plugins_path/$fake2
+@test "$fake3 plugin exists" -d $reel_plugins_path/$fake3
+reel rm $fake2 $fake3 >/dev/null 2>&1
+@test "'reel rm $fake2 $fake3' command succeeds" $status -eq 0
+@test "$fake2 plugin no longer exists" ! -d $reel_plugins_path/$fake2
+@test "$fake3 plugin no longer exists" ! -d $reel_plugins_path/$fake3
 
 @echo "--- remove non-existent plugins ---"
 reel rm nonexistent >/dev/null 2>&1

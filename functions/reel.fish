@@ -24,7 +24,7 @@ function __reel_usage
 end
 
 function __reel_ls
-    for p in $reel_plugins_path/*
+    for p in $reel_plugins_path/*/*
         string replace -a "$reel_plugins_path/" "" $p
     end
 end
