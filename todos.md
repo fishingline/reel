@@ -1,3 +1,4 @@
-TODOs:
-- Enhance documentation
-- Add bumpversion
+# TODOs
+
+- [ ] Enhance documentation
+- [ ] Add bumpversion
