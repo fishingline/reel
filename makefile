@@ -9,6 +9,7 @@ test:
 .PHONY: pretty
 pretty:
 	fish_indent -w ./**/*.fish
+	fish_indent -w ./bin/runtests
 
 .PHONY: help
 help:

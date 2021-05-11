@@ -11,7 +11,7 @@ set pluginlist (reel ls)
 @test "'reel ls' lists 0 plugins" (count $pluginlist) -eq 0
 teardown
 
-setup "fakes"
+setup fakes
 reel list >/dev/null 2>&1
 @test "'reel ls' command succeeds" $status -eq 0
 set pluginlist (reel ls)

@@ -4,7 +4,7 @@ set thisdir (dirname $thisfile)
 
 source $thisdir/includes/setup_teardown.fish
 
-setup "fakes"
+setup fakes
 
 @echo "--- remove single plugin ---"
 @test "$fake1 plugin exists" -d $reel_plugins_path/$fake1

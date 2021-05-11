@@ -4,7 +4,7 @@ set prjhome (dirname (dirname (realpath (status filename))))
 set fishtape_home $prjhome/.fishtape
 
 if not test -d $fishtape_home
-  git clone --depth 1 -q https://github.com/jorgebucaran/fishtape $fishtape_home
+    git clone --depth 1 -q https://github.com/jorgebucaran/fishtape $fishtape_home
 end
 
 source $fishtape_home/functions/fishtape.fish
