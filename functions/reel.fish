@@ -4,7 +4,8 @@
 
 set -g reel_version 1.0.2
 set -q reel_plugins_path; or set -g reel_plugins_path $__fish_config_dir/plugins
-set -q reel_git_default_domain; or set -g reel_git_default_domain "github.com"
+set -q reel_git_server; or set -g reel_git_server "github.com"
+set -q reel_git_protocol; or set -g reel_git_protocol https
 
 function __reel_usage
     echo "reel - manage your fish plugins"
@@ -37,24 +38,6 @@ function __reel_up -a plugin
     command git -C "$reel_plugins_path/$plugin" pull --recurse-submodules origin
 end
 
-function __reel_parse_giturl
-    # try to parse a git URL
-    set -l parsed (string match -r '^((?:https?|git|ssh):\/\/)(.+)\/([^\/]+)\/([^\/]+?)(?:.git)?$' $argv)
-    or set -l parsed (string match -r '^(git@)(.+):([^\/]+)\/([^\/]+?)(?:.git)?$' $argv)
-    or set -l parsed (string match -r '^([^\/]+)\/([^\/]+)$' $argv)
-
-    if test (count $parsed) -eq 3
-        set parsed "https://$reel_git_default_domain/$parsed[2]/$parsed[3]" "https://" "$reel_git_default_domain" $parsed[2..-1]
-    else if test (count $parsed) -ne 5
-        echo >&2 "reel: unable to parse git URL $argv" && return 1
-    end
-
-    # return the parsed URL as url, protocol, domain, user, and repo
-    for item in $parsed
-        echo $item
-    end
-end
-
 function __reel_is_giturl -a repo
     string match -q -r '^(https?|git|ssh):\/\/' $repo
     or string match -q -r '^git@' $repo
@@ -70,17 +53,25 @@ function __reel_parse_plugin_name_from_giturl -a url
     echo $name
 end
 
-function __reel_clone -a plugin
-    set -l urlparts (__reel_parse_giturl $plugin)
-    if test $status -ne 0
-        echo >&2 "reel: invalid plugin $plugin" && return 1
+function __reel_clone -a repo
+    echo "repo: $repo"
+
+    if not __reel_is_giturl $repo
+        if contains "$reel_git_protocol" git ssh
+            set repo $reel_git_protocol"@"$reel_git_server":"$repo
+        else
+            set repo $reel_git_protocol"://"$reel_git_server"/"$repo
+        end
     end
-    set -l plugindir "$reel_plugins_path/$urlparts[4]/$urlparts[5]"
-    if test -d $plugindir
-        echo >&2 "reel: plugin already exists" && return 1
+
+    echo "repo: $repo"
+    set -l plugin_name (__reel_parse_plugin_name_from_giturl $repo)
+    set -l plugin_dir "$reel_plugins_path/$plugin_name"
+    if test -d $plugin_dir
+        echo >&2 "reel: plugin already exists $plugin_dir" && return 1
     end
     echo "cloning repo $plugin..."
-    command git clone --recursive --depth 1 $urlparts[1] $plugindir
+    command git clone --depth 1 --recursive --shallow-submodules $repo $plugin_dir
 end
 
 function __reel_load -a plugin
