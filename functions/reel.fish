@@ -55,6 +55,12 @@ function __reel_parse_giturl
     end
 end
 
+function __reel_is_giturl -a repo
+    string match -q -r '^(https?|git|ssh):\/\/' $repo
+    or string match -q -r '^git@' $repo
+    or return 1
+end
+
 function __reel_clone -a plugin
     set -l urlparts (__reel_parse_giturl $plugin)
     if test $status -ne 0
