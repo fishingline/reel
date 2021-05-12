@@ -16,7 +16,7 @@ reel rm $fake1 >/dev/null 2>&1
 @echo "--- remove with no plugin specified ---"
 set reply (reel rm 2>&1)
 @test "'reel rm' command fails" $status -eq 1
-@test "'reel rm' replies with arg expected" "$reply" = "reel: plugin argument expected"
+@test "'reel rm' replies with arg expected" "$reply" = "reel: argument expected"
 
 @echo "--- remove tricky directory ---"
 set tricky_dir (mktemp -d)

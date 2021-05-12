@@ -31,7 +31,7 @@ end
 
 function __reel_up -a plugin
     if not test -d "$reel_plugins_path/$plugin"
-        echo >&2 "plugin not found: $plugin" && return 1
+        echo >&2 "reel: plugin not found $plugin" && return 1
     end
     echo "updating plugin $plugin..."
     command git -C "$reel_plugins_path/$plugin" pull --recurse-submodules origin
@@ -46,7 +46,7 @@ function __reel_parse_giturl
     if test (count $parsed) -eq 3
         set parsed "https://$reel_git_default_domain/$parsed[2]/$parsed[3]" "https://" "$reel_git_default_domain" $parsed[2..-1]
     else if test (count $parsed) -ne 5
-        echo >&2 "unable to parse git URL: $argv" && return 1
+        echo >&2 "reel: unable to parse git URL $argv" && return 1
     end
 
     # return the parsed URL as url, protocol, domain, user, and repo
@@ -58,11 +58,11 @@ end
 function __reel_clone -a plugin
     set -l urlparts (__reel_parse_giturl $plugin)
     if test $status -ne 0
-        echo >&2 "invalid plugin: $plugin" && return 1
+        echo >&2 "reel: invalid plugin $plugin" && return 1
     end
     set -l plugindir "$reel_plugins_path/$urlparts[4]/$urlparts[5]"
     if test -d $plugindir
-        echo >&2 "plugin already exists" && return 1
+        echo >&2 "reel: plugin already exists" && return 1
     end
     echo "cloning repo $plugin..."
     command git clone --recursive --depth 1 $urlparts[1] $plugindir
@@ -74,7 +74,7 @@ function __reel_load -a plugin
     else if test -d "$reel_plugins_path/$plugin"
         set plugin (realpath "$reel_plugins_path/$plugin")
     else
-        echo >&2 "plugin not found: $plugin" && return 1
+        echo >&2 "reel: plugin not found $plugin" && return 1
     end
     load_plugin $plugin
 end
@@ -99,9 +99,6 @@ function __reel_in -a plugin
 end
 
 function __reel_rm -a plugin
-    if test (count $argv) -eq 0
-        echo >&2 "reel: plugin argument expected" && return 1
-    end
     set plugin_path "$reel_plugins_path/$plugin"
     if not test -d "$plugin_path"
         echo >&2 "reel: plugin not found '$plugin'" && return 1
@@ -137,7 +134,7 @@ function reel -a cmd --description 'Manage your fish plugins'
             end
         case in clone load rm
             if test (count $argv) -eq 0
-                echo >&2 "reel: plugin argument expected" && return 1
+                echo >&2 "reel: argument expected" && return 1
             end
             for p in $argv
                 __reel_$cmd $p
