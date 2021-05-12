@@ -61,6 +61,15 @@ function __reel_is_giturl -a repo
     or return 1
 end
 
+function __reel_parse_plugin_name_from_giturl -a url
+    # In Zsh, you might do something like this: name=${${url##*/}%.git}
+    # In Fish, we need to use a regex to get the plugin name from a URL
+    # eg: https://github.com/mattmc3/reel.git => reel
+    # Assign $name the value of the string after the last slash, sans a .git suffix
+    string match -q -r '\/(?<name>[^\/]+?)(?:\.git)?$' $url || return 1
+    echo $name
+end
+
 function __reel_clone -a plugin
     set -l urlparts (__reel_parse_giturl $plugin)
     if test $status -ne 0
