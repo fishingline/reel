@@ -12,9 +12,9 @@ BEGIN {
 }
 /^ok /      { print GREEN $0 NORMAL; next }
 /^not ok /  { print RED $0 NORMAL; next }
-/^\# ===/   { print CYAN $0 NORMAL; next }
-/^\# ok$/   { print BRIGHTGREEN $0 NORMAL; next }
-/^\# pass / { print BRIGHTGREEN $0 NORMAL; next }
-/^\# fail / { print BRIGHTRED $0 NORMAL; next }
-/^\#/       { print BLUE $0 NORMAL; next }
+/^# ===/    { print CYAN $0 NORMAL; next }
+/^# ok$/    { print BRIGHTGREEN $0 NORMAL; next }
+/^# pass /  { print BRIGHTGREEN $0 NORMAL; next }
+/^# fail /  { print BRIGHTRED $0 NORMAL; next }
+/^#/        { print BLUE $0 NORMAL; next }
             { print $0 }
