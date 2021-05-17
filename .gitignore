@@ -1,2 +1,6 @@
+# unit testing ignores
 .fishtape
+
+# sandbox ignores
 .plugins
+foo.fish
