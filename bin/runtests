@@ -1,6 +1,7 @@
 #!/usr/bin/env fish
 
-set prjhome (realpath (status filename)/../..)
+set prjhome (realpath (status dirname)/..)
+echo "Project home: $prjhome"
 set fishtape_home $prjhome/.fishtape
 
 if not test -d $fishtape_home
