@@ -2,7 +2,7 @@ set thisfile (status filename)
 set thisdir (dirname $thisfile)
 @echo "=== "(basename $thisfile)" ==="
 
-set -l prjdir (realpath (status filename)/../..)
+set -l prjdir (dirname (status dirname))
 source $prjdir/functions/reel.fish
 
 set plugin_url_to_names \
