@@ -8,6 +8,7 @@ set -q reel_git_server; or set -g reel_git_server "github.com"
 set -q reel_git_protocol; or set -g reel_git_protocol https
 
 function __reel_usage
+    # print out the usage docs for reel
     echo "reel - manage your fish plugins"
     echo ""
     echo "Comands:"
@@ -25,12 +26,14 @@ function __reel_usage
 end
 
 function __reel_ls
+    # reel command to list the installed plugins
     for p in $reel_plugins_path/*/*
         string replace -a "$reel_plugins_path/" "" $p
     end
 end
 
 function __reel_up -a plugin
+    # reel command to update installed plugins
     if not test -d "$reel_plugins_path/$plugin"
         echo >&2 "reel: plugin not found $plugin" && return 1
     end
@@ -39,12 +42,14 @@ function __reel_up -a plugin
 end
 
 function __reel_is_giturl -a repo
+    # checks whether a repo is a proper git URL
     string match -q -r '^(https?|git|ssh):\/\/' $repo
     or string match -q -r '^git@' $repo
     or return 1
 end
 
 function __reel_parse_plugin_name_from_giturl -a url
+    # parse the plugin name from a git URL
     # In Zsh, you might do something like this: name=${${url##*/}%.git}
     # In Fish, we need to use a regex to get the plugin name from a URL
     # eg: https://github.com/mattmc3/reel.git => reel
@@ -54,8 +59,7 @@ function __reel_parse_plugin_name_from_giturl -a url
 end
 
 function __reel_clone -a repo
-    echo "repo: $repo"
-
+    # reel command to clone a fish plugin from a git server
     if not __reel_is_giturl $repo
         if contains "$reel_git_protocol" git ssh
             set repo $reel_git_protocol"@"$reel_git_server":"$repo
@@ -64,7 +68,6 @@ function __reel_clone -a repo
         end
     end
 
-    echo "repo: $repo"
     set -l plugin_name (__reel_parse_plugin_name_from_giturl $repo)
     set -l plugin_dir "$reel_plugins_path/$plugin_name"
     if test -d $plugin_dir
@@ -75,6 +78,7 @@ function __reel_clone -a repo
 end
 
 function __reel_load -a plugin
+    # reel command to load a fish plugin
     if test -d "$plugin"
         set plugin (realpath "$plugin")
     else if test -d "$reel_plugins_path/$plugin"
@@ -98,6 +102,7 @@ function load_plugin -a plugin
 end
 
 function __reel_in -a plugin
+    # initialize a reel plugin
     if not test -d "$reel_plugins_path/$plugin"
         __reel_clone "$plugin"
     end
@@ -105,6 +110,7 @@ function __reel_in -a plugin
 end
 
 function __reel_rm -a plugin
+    # reel command to remove a plugin
     set plugin_path "$reel_plugins_path/$plugin"
     if not test -d "$plugin_path"
         echo >&2 "reel: plugin not found '$plugin'" && return 1
@@ -117,13 +123,15 @@ function __reel_rm -a plugin
 end
 
 function __reel_is_safe_rm -a plugin_path
-    # quick check to make sure no one is being evil ../ relative paths
+    # check to make sure no one is being evil and trying to access forbidden
+    # dirs using ../../../ relative paths
     set plugin_path (realpath "$plugin_path")
     set -l reeldir (realpath "$reel_plugins_path")
     string match -q -- "$reeldir/*" "$plugin_path" || return 1
 end
 
 function reel -a cmd --description 'Manage your fish plugins'
+    # reel main function
     set argv $argv[2..-1]
     switch "$cmd"
         case -v --version
@@ -138,7 +146,7 @@ function reel -a cmd --description 'Manage your fish plugins'
             for p in $argv
                 __reel_up $p
             end
-        case in clone load rm
+        case clone in load rm
             if test (count $argv) -eq 0
                 echo >&2 "reel: argument expected" && return 1
             end
