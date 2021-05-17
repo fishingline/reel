@@ -48,14 +48,15 @@ function __reel_is_giturl -a repo
     or return 1
 end
 
-function __reel_parse_plugin_name_from_giturl -a url
+function __reel_parse_plugin_parts_from_giturl -a url
     # parse the plugin name from a git URL
-    # In Zsh, you might do something like this: name=${${url##*/}%.git}
-    # In Fish, we need to use a regex to get the plugin name from a URL
-    # eg: https://github.com/mattmc3/reel.git => reel
-    # Assign $name the value of the string after the last slash, sans a .git suffix
-    string match -q -r '\/(?<name>[^\/]+?)(?:\.git)?$' $url || return 1
-    echo $name
+    # In Zsh, you might do something like this: reponame=${${url##*/}%.git}
+    # In Fish, we need to use a regex to get the git user and plugin name from a URL
+    # eg: https://github.com/mattmc3/reel.git => mattmc3 reel
+    # eg: git@github.com:mattmc3/reel.git => mattmc3 reel
+    string match -q -r '(?<gituser>[^\/:]+?)\/(?<reponame>[^\/]+?)(?:\.git)?$' $url || return 1
+    echo $gituser
+    echo $reponame
 end
 
 function __reel_clone -a repo
@@ -68,8 +69,8 @@ function __reel_clone -a repo
         end
     end
 
-    set -l plugin_name (__reel_parse_plugin_name_from_giturl $repo)
-    set -l plugin_dir "$reel_plugins_path/$plugin_name"
+    set -l plugin_parts (__reel_parse_plugin_parts_from_giturl $repo)
+    set -l plugin_dir "$reel_plugins_path/$plugin_parts[1]/$plugin_parts[2]"
     if test -d $plugin_dir
         echo >&2 "reel: plugin already exists $plugin_dir" && return 1
     end

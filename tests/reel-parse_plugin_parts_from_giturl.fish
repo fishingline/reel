@@ -11,9 +11,10 @@ set plugin_url_to_names \
     "http://insecuregit.org/user/plugin" \
     "git@gitlab.com:user/plugin.git" \
     "ssh://securesite.org/user/plugin" \
-    shorthand/plugin
+    user/plugin
 
 for url in $plugin_url_to_names
-    set -l plugin_name (__reel_parse_plugin_name_from_giturl $url)
-    @test "$url parses plugin name correctly" $plugin_name = plugin
+    set -l plugin_parts (__reel_parse_plugin_parts_from_giturl $url)
+    @test "$url parses plugin gituser correctly" $plugin_parts[1] = user
+    @test "$url parses plugin reponame correctly" $plugin_parts[2] = plugin
 end
