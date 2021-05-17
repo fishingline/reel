@@ -2,7 +2,7 @@ set thisfile (status filename)
 set thisdir (dirname $thisfile)
 @echo "=== "(basename $thisfile)" ==="
 
-set -l prjdir (dirname (dirname (status filename)))
+set -l prjdir (realpath (status filename)/../..)
 source $prjdir/functions/reel.fish
 
 set giturls \

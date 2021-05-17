@@ -20,7 +20,7 @@ function setup
 end
 
 function get_project_dir
-    dirname (dirname (dirname (status filename)))
+    realpath (status filename)/../../..
 end
 
 function make_fake_plugin_structure -a name
