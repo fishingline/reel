@@ -7,99 +7,88 @@
      alt="reel"
      src="https://raw.githubusercontent.com/mattmc3/reel/resources/img/pexels-brent-keane-1687242.jpg">
 
-> The simple, elegant, clutter-free fish plugin manager that shows you maybe don't even really need one
+> Simple, fast, Fish shell plugin management
 
 ## Installation
 
-TLDR; Just grab Reel with a simple git command and copy a file to your fish config.
+TLDR; To `reel in` plugins, simply add this to your `fish.conf`:
 
-```shell
+```fish
+# set where you want to store plugins
 set reel_plugin_dir $__fish_config_dir/plugins
-git clone --depth 1 https://github.com/mattmc3/reel $reel_plugin_dir/reel
-cp $reel_plugin_dir/reel/templates/reel.fish $__fish_config_dir/conf.d
+
+# get reel
+if test ! -d $reel_plugin_dir/reel
+    git clone --depth 1 https://github.com/mattmc3/reel $reel_plugin_dir/reel
+end
 ```
 
 ## Introduction
 
-Other plugin managers do too much magic, require extra variables or configuration files, and can clutter up your personal fish config.
+Other plugin managers may require extra variables or configuration files, do a lot of
+behind-the-scenes magic, require using an entire framework on top of plugin management,
+or clutter up your personal fish config.
 
-Reel doesn't do any of that.
-It doesn't need to.
-It offers a much simpler way to think about managing your fish shell plugins.
-The power of Reel is that it's a plugin manager that shows that maybe you don't really even need a plugin manager.
-Or at least not a very fancy one.
-Let me show you what I mean.
+Reel doesn't do any of that. It doesn't need to. It offers a much simpler way to think
+about managing your fish shell plugins. The power of Reel is that it is simple to
+understand how it works, lightning fast at loading your plugins, doesn't abstract you
+too far from its `git` underpinnings, and allows you to load local plugins in addition
+to remote git repos.
 
-The way Reel works is that it stores any plugins you clone from git in the `~/.config/fish/plugins` folder.
-It then uses fish's built-in `$fish_function_path` and `$fish_complete_path` to tell fish where to find the plugin's key files.
-This short snippet from Reel is the entirety of what you'd need to load your own plugins without using a "plugin manager".
+Fish "Plugins" are simply directories that mimic the structure of the `~/.config/fish`
+directory. Reel works by treating these plugins like they are directly in your fish
+functions, completions, or conf.d directories. It does this by using fish's built-in
+`$fish_function_path` and `$fish_complete_path` variables to tell fish where to find a
+plugin's key files.
 
-```fish
-function load_plugin -a plugin
-    if test -d "$plugin/completions"; and not contains "$plugin/completions" $fish_complete_path
-        set fish_complete_path "$plugin/completions" $fish_complete_path
-    end
-    if test -d "$plugin/functions"; and not contains "$plugin/functions" $fish_function_path
-        set fish_function_path "$plugin/functions" $fish_function_path
-    end
-    for f in "$plugin/conf.d"/*.fish
-        builtin source "$f"
-    end
-end
-```
+## Reel commands
 
-With this tiny snippet of code and a basic knowledge of git commands, you could git by without a Fish plugin manager.
-Imagine that.
-A tool so confident in itself that is shows you that you don't even need it.
-But, Reel puts some extra goodies on top of this simple concept.
-So if you want those goodies, then Reel might be right for you.
-
-## The Goodies
-
-List your plugins:
+Initialize your all your plugins with `reel in`. Reel will attempt to `git clone`
+plugins if they are not found.
 
 ```fish
-reel ls
+reel in
 ```
 
-Initialize a plugin. Initializing means that the plugin will `git clone` if it's not found before trying to load it:
+Additionally, you can `reel in` a specific plugin by providing an argument:
 
 ```fish
 reel in mattmc3/reel
 ```
 
-Load a plugin without trying to clone it first.
+You can also `reel in` a local plugin from a location on your computer by providing a
+path to that plugin:
 
 ```fish
-reel load myplugin
+reel in ~/Projects/my-plugins/helloworld
+reel in $__fish_config_dir/my-plugins/helloworld
 ```
 
-Load a plugin from some location on your computer.
-Loaded plugins don't even have to come from git repos.
+You can list your plugins with `reel ls`:
 
 ```fish
-reel load ~/.config/fish/my_fancy_plugin
+reel ls
 ```
 
-Update all your plugins:
+You can update all your remote git plugins with `reel up`:
 
 ```fish
 reel up
 ```
 
-Update a specific plugin:
-
-```fish
-reel up reel
-```
-
-Or, use the user/repo name
+Or, you can update a specific plugin:
 
 ```fish
 reel up mattmc3/reel
 ```
 
-Remove a plugin:
+Or, just use the short name
+
+```fish
+reel up reel
+```
+
+You can remove a plugin with `reel rm`:
 
 ```fish
 reel rm jorgebucaran/fisher
@@ -120,11 +109,12 @@ reel clone https://bitbucket.org/my_other_username/my_other_fish_plugin.git
 
 ## Customization
 
-Don't care for github.com and want reel to always favor using another server as the default git domain?
-Set the `$reel_git_default_domain` variable at the top of your `~/.config/fish/conf.d/reel.fish` file.
+Don't care for github.com? Do you want reel to use another server as the default git
+domain? Set the `$reel_git_default_domain` variable at the top of your
+`~/.config/fish/conf.d/reel.fish` file.
 
 ```fish
-set -gx reel_git_default_domain "bitbucket.org"
+set -g reel_git_default_domain "bitbucket.org"
 # or...
-set -gx reel_git_default_domain "gitlab.com"
+set -g reel_git_default_domain "gitlab.com"
 ```
