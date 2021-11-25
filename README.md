@@ -7,7 +7,9 @@
      alt="reel"
      src="https://raw.githubusercontent.com/mattmc3/reel/resources/img/pexels-brent-keane-1687242.jpg">
 
-> Simple, fast, Fish shell plugin management
+> Reel in your fish plugins.
+
+Simple, fast, elegant fish plugin management.
 
 ## Installation
 
