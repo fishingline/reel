@@ -4,6 +4,7 @@
 
 set -g reel_version 2.0.0
 set -q reel_plugins_path; or set -g reel_plugins_path $__fish_config_dir/plugins
+set -q reel_plugins_file; or set -g reel_plugins_file $__fish_config_dir/fish_plugins
 set -q reel_git_server; or set -g reel_git_server "github.com"
 set -q reel_git_protocol; or set -g reel_git_protocol https
 
@@ -11,16 +12,17 @@ function _reel_usage -d "Print out reel usage information"
     echo "reel - Reel in your fish plugins"
     echo ""
     echo "Usage:"
-    echo "  reel in [--clone-only] [<plugins...>]"
-    echo "  reel up [<plugins...>]"
-    echo "  reel rm <plugins...>"
-    echo "  reel ls [--style=xxx]"
+    echo "  reel [-h|--help]"
+    echo "  reel [-v|--version]"
+    echo "  reel <command> [<args>...]"
     echo ""
-    echo "Options:"
-    echo "  -v --version  Print version"
-    echo "  -h --help     Print this help message"
-    echo "  --clone-only  Just clone the plugin, do not load it"
-    echo "  --style=xxx   The list style (values: repo, path, url)"
+    echo "Commands:"
+    echo ""
+    echo "  reel in <plugins...>    Install plugin(s)"
+    echo "  reel rm <plugins...>    Remove plugin(s)"
+    echo "  reel up [<plugins...>]  Update plugin(s)"
+    echo "  reel ls [--style=xxx]   List plugins (styles: name, repo, path, url)"
+    echo "  reel on                 Enable all plugins (usually in fish.config)"
 end
 
 function _reelcmd_ls -d "List installed plugins"
@@ -29,7 +31,7 @@ function _reelcmd_ls -d "List installed plugins"
         echo >&2 "reel: Invalid 'ls' arguments." && return 1
     end
     for p in $reel_plugins_path/*/.git
-        if [ -z "$_flag_style" ]
+        if [ "$_flag_style" = name ] || [ -z "$_flag_style" ]
             string replace -a "$reel_plugins_path/" "" $p |
             string replace -a "/.git" ""
         else if [ "$_flag_style" = url ]
@@ -44,15 +46,36 @@ function _reelcmd_ls -d "List installed plugins"
                 echo $giturl
             end
         else
-            echo >&2 "reel: Invalid ls style '$_flag_style'." && return 1
+            echo >&2 "reel: Invalid 'ls' style '$_flag_style'."
+            echo >&2 "      Valid values are: name, repo, path, url"
+            echo >&2 "      For example: `reel ls --style=url`"
+            return 1
         end
     end
 end
 
 function _reelcmd_up -d "Update the specified plugins, or all of them"
-    if test (count $argv) -eq 0
-        set argv (_reelcmd_ls)
+    # reel up can take arguments for plugins to update
+    if test (count $argv) -gt 0
+        for repo in $argv
+            set -l plugin (string split / --max 1 --fields 2 --right /$repo)
+            _reel_gitpull $plugin
+        end
+        return
     end
+
+    # if no arguments given, then we update everything to match the contents
+    # of our $reel_plugins_file
+    set -l plugins (string match --invert -r '^(\#.*)?$' <$reel_plugins_file)
+    set -l plugin_names (string split / --max 1 --fields 2 --right $plugins)
+
+    # remove plugins that are no longer in $reel_plugins_file
+    for dir in $reel_plugins_path/*/
+
+    end
+
+
+
     for repo in $argv
         set -l plugin (string split / --max 1 --fields 2 --right /$repo)
         if not test -d "$reel_plugins_path/$plugin/.git"
@@ -63,25 +86,62 @@ function _reelcmd_up -d "Update the specified plugins, or all of them"
     end
 end
 
-function _reelcmd_in -d "Initialize plugins"
-    if [ ! -f $__fish_config_dir/fish_plugins ]
-        touch $__fish_config_dir/fish_plugins
+function _reel_gitpull -a plugin -d "Git pull to update a plugin"
+    if not test -d "$reel_plugins_path/$plugin/.git"
+        echo >&2 "reel: Plugin not found or not a git plugin '$plugin'" && return 1
     end
-    set plugins (cat $__fish_config_dir/fish_plugins)
+    echo "Updating plugin $plugin..."
+    command git -C "$reel_plugins_path/$plugin" pull --recurse-submodules origin
 end
 
-function _reelcmd_rm -d ""
-    # reel command to remove a plugin
-    set plugin_path "$reel_plugins_path/$plugin"
-    if not test -d "$plugin_path"
-        echo >&2 "reel: plugin not found '$plugin'" && return 1
-    else if not _reel_is_safe_rm "$plugin_path"
-        echo >&2 "reel: plugin path not safe to remove '$plugin'" && return 1
-    else
-        echo "removing $plugin_path..."
-        command rm -rf "$plugin_path"
+function _reelcmd_on -d "Enable all plugins managed by reel"
+    set -l plugin_complete_path
+    set -l plugin_function_path
+    set -l plugin_confd_path
+
+    # gather plugin info
+    for plugin_dir in $reel_plugins_path/*
+        test -d $plugin_dir || continue
+        test -d $plugin_dir/completions && set plugin_complete_path $plugin_complete_path $plugin_dir/completions
+        test -d $plugin_dir/functions && set plugin_function_path $plugin_function_path $plugin_dir/functions
+        test -d $plugin_dir/conf.d && set plugin_confd_path $plugin_confd_path $plugin_dir/conf.d
+    end
+
+    set fish_complete_path $fish_complete_path[1] $plugin_complete_path $fish_complete_path[2..-1]
+    set fish_function_path $fish_function_path[1] $plugin_function_path $fish_function_path[2..-1]
+    for confd in $plugin_confd_path
+        for f in $confd/*.fish
+            builtin source "$f"
+        end
     end
 end
+
+# function _reelcmd_in -d "Initialize plugins"
+#     if [ ! -f $__fish_config_dir/fish_plugins ]
+#         touch $__fish_config_dir/fish_plugins
+#     end
+#     set plugins (cat $__fish_config_dir/fish_plugins)
+# end
+
+# function _reelcmd_in -d "Initialize plugins"
+#     if [ ! -f $__fish_config_dir/fish_plugins ]
+#         touch $__fish_config_dir/fish_plugins
+#     end
+#     set plugins (cat $__fish_config_dir/fish_plugins)
+# end
+
+# function _reelcmd_rm -d ""
+#     # reel command to remove a plugin
+#     set plugin_path "$reel_plugins_path/$plugin"
+#     if not test -d "$plugin_path"
+#         echo >&2 "reel: plugin not found '$plugin'" && return 1
+#     else if not _reel_is_safe_rm "$plugin_path"
+#         echo >&2 "reel: plugin path not safe to remove '$plugin'" && return 1
+#     else
+#         echo "removing $plugin_path..."
+#         command rm -rf "$plugin_path"
+#     end
+# end
 
 # function _reel_is_giturl -a repo
 #     # checks whether a repo is a proper git URL
