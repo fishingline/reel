@@ -116,122 +116,27 @@ function _reelcmd_on -d "Enable all plugins managed by reel"
     end
 end
 
-# function _reelcmd_in -d "Initialize plugins"
-#     if [ ! -f $__fish_config_dir/fish_plugins ]
-#         touch $__fish_config_dir/fish_plugins
-#     end
-#     set plugins (cat $__fish_config_dir/fish_plugins)
-# end
+function _reelcmd_rm -a plugin -d "Enable all plugins managed by reel"
+    if test -z "$plugin"
+        echo >&2 "reel: Plugin argument expected" && return 1
+    end
 
-# function _reelcmd_in -d "Initialize plugins"
-#     if [ ! -f $__fish_config_dir/fish_plugins ]
-#         touch $__fish_config_dir/fish_plugins
-#     end
-#     set plugins (cat $__fish_config_dir/fish_plugins)
-# end
+    # if a long form plugin path is provided, just take the last part
+    set plugin (string split / --max 1 --fields 2 --right /$plugin)
 
-# function _reelcmd_rm -d ""
-#     # reel command to remove a plugin
-#     set plugin_path "$reel_plugins_path/$plugin"
-#     if not test -d "$plugin_path"
-#         echo >&2 "reel: plugin not found '$plugin'" && return 1
-#     else if not _reel_is_safe_rm "$plugin_path"
-#         echo >&2 "reel: plugin path not safe to remove '$plugin'" && return 1
-#     else
-#         echo "removing $plugin_path..."
-#         command rm -rf "$plugin_path"
-#     end
-# end
+    if ! test -d "$reel_plugins_path/$plugin"
+        echo >&2 "reel: Plugin not found '$plugin'." && return 1
+    end
+    if test "$plugin" = reel
+        echo >&2 "reel: Reel cannot remove itself." && return 1
+    end
 
-# function _reel_is_giturl -a repo
-#     # checks whether a repo is a proper git URL
-#     string match -q -r '^(https?|git|ssh):\/\/' $repo
-#     or string match -q -r '^git@' $repo
-#     or return 1
-# end
-
-# function _reel_parse_plugin_parts_from_giturl -a url
-#     # parse the plugin name from a git URL
-#     # In Zsh, you might do something like this: reponame=${${url##*/}%.git}
-#     # In Fish, we need to use a regex to get the git user and plugin name from a URL
-#     # eg: https://github.com/mattmc3/reel.git => mattmc3 reel
-#     # eg: git@github.com:mattmc3/reel.git => mattmc3 reel
-#     string match -q -r '(?<gituser>[^\/:]+?)\/(?<reponame>[^\/]+?)(?:\.git)?$' $url || return 1
-#     echo $gituser
-#     echo $reponame
-# end
-
-# function _reel_clone -a repo
-#     # reel command to clone a fish plugin from a git server
-#     if not _reel_is_giturl $repo
-#         if contains "$reel_git_protocol" git ssh
-#             set repo $reel_git_protocol"@"$reel_git_server":"$repo
-#         else
-#             set repo $reel_git_protocol"://"$reel_git_server"/"$repo
-#         end
-#     end
-
-#     set -l plugin_parts (_reel_parse_plugin_parts_from_giturl $repo)
-#     set -l plugin_dir "$reel_plugins_path/$plugin_parts[1]/$plugin_parts[2]"
-#     if test -d $plugin_dir
-#         echo >&2 "reel: plugin already exists $plugin_dir" && return 1
-#     end
-#     echo "cloning repo $plugin..."
-#     command git clone --depth 1 --recursive --shallow-submodules $repo $plugin_dir
-# end
-
-# function _reel_load -a plugin
-#     # reel command to load a fish plugin
-#     if test -d "$plugin"
-#         set plugin (realpath "$plugin")
-#     else if test -d "$reel_plugins_path/$plugin"
-#         set plugin (realpath "$reel_plugins_path/$plugin")
-#     else
-#         echo >&2 "reel: plugin not found $plugin" && return 1
-#     end
-#     load_plugin $plugin
-# end
-
-# function load_plugin -a plugin
-#     if test -d "$plugin/completions"; and not contains "$plugin/completions" $fish_complete_path
-#         set fish_complete_path "$plugin/completions" $fish_complete_path
-#     end
-#     if test -d "$plugin/functions"; and not contains "$plugin/functions" $fish_function_path
-#         set fish_function_path "$plugin/functions" $fish_function_path
-#     end
-#     for f in "$plugin/conf.d"/*.fish
-#         builtin source "$f"
-#     end
-# end
-
-# function _reel_in -a plugin
-#     # initialize a reel plugin
-#     if not test -d "$reel_plugins_path/$plugin"
-#         _reel_clone "$plugin"
-#     end
-#     _reel_load "$reel_plugins_path/$plugin"
-# end
-
-# function _reel_rm -a plugin
-#     # reel command to remove a plugin
-#     set plugin_path "$reel_plugins_path/$plugin"
-#     if not test -d "$plugin_path"
-#         echo >&2 "reel: plugin not found '$plugin'" && return 1
-#     else if not _reel_is_safe_rm "$plugin_path"
-#         echo >&2 "reel: plugin path not safe to remove '$plugin'" && return 1
-#     else
-#         echo "removing $plugin_path..."
-#         command rm -rf "$plugin_path"
-#     end
-# end
-
-# function _reel_is_safe_rm -a plugin_path
-#     # check to make sure no one is being evil and trying to access forbidden
-#     # dirs using ../../../ relative paths
-#     set plugin_path (realpath "$plugin_path")
-#     set -l reeldir (realpath "$reel_plugins_path")
-#     string match -q -- "$reeldir/*" "$plugin_path" || return 1
-# end
+    echo "removing plugin $plugin..."
+    command rm -rf "$reel_plugins_path/$plugin"
+    set -l rm_plugin_pattern '/'(string escape --style=regex $plugin)'$'
+    set -l plugins (string match --all --invert -r $rm_plugin_pattern <$reel_plugins_file)
+    printf "%s\n" $plugins >$reel_plugins_file
+end
 
 function reel -a cmd -d 'Reel in your fish plugins'
     if test -z "$cmd"
