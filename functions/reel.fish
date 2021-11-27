@@ -1,7 +1,11 @@
-function reel -a cmd -d 'Reel in your fish plugins'
+function reel \
+    --description 'Reel in your fish plugins' \
+    --argument-names cmd
+
     if test -z "$cmd"
         echo >&2 "reel: Command expected. (see `reel -h`)" && return 1
     end
+    # hangle command aliases
     switch "$cmd"
         case -h --help
             set cmd help
@@ -9,17 +13,17 @@ function reel -a cmd -d 'Reel in your fish plugins'
             set cmd version
         case ls
             set cmd list
-        case rm
-            set cmd remove
         case up
             set cmd update
-        case in
+        case rm
+            set cmd remove
+        case in init
             set cmd install
     end
-    if functions -q _reel_$cmd
-        _reel_$cmd $argv[2..]
+    if functions -q _reel_cmd_$cmd
+        _reel_cmd_$cmd $argv[2..]
         return $status
     else
-        echo >&2 "reel: Unknown flag or command '$cmd'. (see `reel -h`)" && return 1
+        echo >&2 "reel: Unknown flag or command '$argv[1]'. (see `reel -h`)" && return 1
     end
 end

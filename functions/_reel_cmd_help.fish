@@ -1,4 +1,4 @@
-function _reel_help \
+function _reel_cmd_help \
     --description "Print out reel help information"
 
     echo "reel - Reel in your fish plugins"
@@ -11,8 +11,8 @@ function _reel_help \
     echo "Commands:"
     echo ""
     echo "  reel in <plugins...>    Install plugin(s)"
+    echo "  reel up <plugins...>    Update plugin(s)"
     echo "  reel rm <plugins...>    Remove plugin(s)"
-    echo "  reel up [<plugins...>]  Update plugin(s)"
     echo "  reel ls [--style=xxx]   List plugins (styles: name, repo, path, url)"
-    echo "  reel on                 Enable all plugins (usually in fish.config)"
+    echo "  reel load               Load a single directory as a plugin"
 end

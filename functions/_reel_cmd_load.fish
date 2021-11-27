@@ -1,5 +1,5 @@
-function _reel_load \
-    --description "Load a fish plugin directory" \
+function _reel_cmd_load \
+    --description "Load any fish plugin directory" \
     --argument-names plugin_path
 
     if not test -d "$plugin_path"

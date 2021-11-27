@@ -8,13 +8,17 @@ BEGIN {
     RED="\033[0;31m"
     BRIGHTGREEN="\033[1;92m"
     BRIGHTRED="\033[1;91m"
+    DIM="\033[2;3m"
     NORMAL="\033[0;0m"
 }
-/^ok /      { print GREEN $0 NORMAL; next }
-/^not ok /  { print RED $0 NORMAL; next }
-/^# ===/    { print CYAN $0 NORMAL; next }
-/^# ok$/    { print BRIGHTGREEN $0 NORMAL; next }
-/^# pass /  { print BRIGHTGREEN $0 NORMAL; next }
-/^# fail /  { print BRIGHTRED $0 NORMAL; next }
-/^#/        { print BLUE $0 NORMAL; next }
-            { print $0 }
+/^ok /                 { print GREEN $0 NORMAL; next }
+/^not ok /             { print RED $0 NORMAL; next }
+/^# ===/               { print CYAN $0 NORMAL; next }
+/^# ---/               { print BLUE $0 NORMAL; next }
+/^# ok$/               { print BRIGHTGREEN $0 NORMAL; next }
+/^# pass /             { print BRIGHTGREEN $0 NORMAL; next }
+/^# fail /             { print BRIGHTRED $0 NORMAL; next }
+/^# /                  { print DIM $0 NORMAL; next }
+/[[:space:]]+actual:/  { print "  " $0; next }
+/[[:space:]]+at:/      { print "      " $0; next }
+                       { print $0 }

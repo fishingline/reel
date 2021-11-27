@@ -1,6 +1,9 @@
-function _reel_remove \
-    --description "Remove a plugin managed by reel" \
+function _reel_cmd_remove \
+    --description "Remove a plugin" \
     --argument-names plugin
+
+    set -q reel_plugins_path; or set -l reel_plugins_path $__fish_config_dir/plugins
+    set -q reel_plugins_file; or set -l reel_plugins_file $__fish_config_dir/reel_plugins
 
     if test -z "$plugin"
         echo >&2 "reel-remove: Plugin argument expected" && return 1

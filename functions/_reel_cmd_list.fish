@@ -1,6 +1,7 @@
-function _reel_list \
-    --description "List installed plugins"
+function _reel_cmd_list \
+    --description "List plugins"
 
+    set -q reel_plugins_path; or set -l reel_plugins_path $__fish_config_dir/plugins
     argparse 'style=' -- $argv
     if test $status -ne 0
         echo >&2 "reel-list: Invalid 'ls' arguments." && return 1
