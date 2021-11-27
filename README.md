@@ -11,37 +11,46 @@
 
 Simple, fast, elegant fish plugin management.
 
-## Installation
+## Fish plugin support
 
-TLDR; To `reel in` plugins, simply add this to your `fish.conf`:
+TLDR; To start using fish plugins, simply add this to your `fish.conf`, or to a
+`~/.config/fish/reel.fish` file:
 
 ```fish
-# set where you want to store plugins
-set reel_plugin_dir $__fish_config_dir/plugins
-
-# get reel
-if test ! -d $reel_plugin_dir/reel
-    git clone --depth 1 https://github.com/mattmc3/reel $reel_plugin_dir/reel
+# ~/.config/fish/reel.fish
+set --query reel_plugins_path || set --global reel_plugins_path $__fish_config_dir/plugins
+test -d $reel_plugins_path/reel || git clone https://github.com/mattmc3/reel $reel_plugins_path/reel
+set fish_complete_path $fish_complete_path[1] $reel_plugins_path/*/completions $fish_complete_path[2..]
+set fish_function_path $fish_function_path[1] $reel_plugins_path/*/functions $fish_function_path[2..]
+for confd in $reel_plugins_path/*/conf.d/*.fish
+    builtin source "$confd"
 end
 ```
 
 ## Introduction
 
-Other plugin managers may require extra variables or configuration files, do a lot of
-behind-the-scenes magic, require using an entire framework on top of plugin management,
-or clutter up your personal fish config.
+Other plugin managers do all sorts of fancy magic to manage your Fish plugins. They
+require extra variables or configuration, they clutter up your fish config, and they
+limit the kinds of plugins they manage to just git repos (and some even limit you to
+just GitHub repos).
 
-Reel doesn't do any of that. It doesn't need to. It offers a much simpler way to think
-about managing your fish shell plugins. The power of Reel is that it is simple to
-understand how it works, lightning fast at loading your plugins, doesn't abstract you
-too far from its `git` underpinnings, and allows you to load local plugins in addition
-to remote git repos.
+Reel doesn't do any of that. It offers a much simpler way to think about managing your
+fish shell plugins. The power of Reel is that:
+- Reel is simple to understand
+- Reel is lightning fast at loading your plugins
+- Reel doesn't abstract you too far from its `git` underpinnings
+- Reel allows you to load plugins from providers other than GitHub
+- Reel even alows you to use local directories as plugins
 
-Fish "Plugins" are simply directories that mimic the structure of the `~/.config/fish`
-directory. Reel works by treating these plugins like they are directly in your fish
-functions, completions, or conf.d directories. It does this by using fish's built-in
-`$fish_function_path` and `$fish_complete_path` variables to tell fish where to find a
-plugin's key files.
+Fish "Plugins" are simply directories that mimic the structure of `~/.config/fish`. Reel
+works by treating any subdirectory you add to `~.config/fish/plugins` like it is part of
+your fish functions, completions, or conf.d directories. It does this simply by using
+fish's built-in `$fish_function_path` and `$fish_complete_path` variables to tell fish
+where to find a plugin's key files.
+
+You can use Reel to manage all your plugins, or you can do some yourself via `git`
+commands or symlinks. As long as the directories are in `~.config/fish/plugins`, reel
+will pick them up.
 
 ## Reel commands
 
