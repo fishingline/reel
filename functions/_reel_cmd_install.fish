@@ -20,7 +20,7 @@ function _reel_cmd_install \
         echo >&2 "reel: The plugin is already installed '$argv[1]'." && return 1
     end
 
-    if $plugin_info[3] = "local"
+    if $plugin_info[3] = local
         _reel_symlink_plugin $plugin $plugin_dir
     else
         _reel_gitclone_plugin $plugin $plugin_dir $_flag_branch
