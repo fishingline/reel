@@ -3,7 +3,7 @@ function _reel_cmd_load \
     --argument-names plugin_path
 
     if not test -d "$plugin_path"
-        echo >&2 "plugin-load: Plugin path not found: '$plugin_path'."
+        echo >&2 "reel: Plugin path not found '$plugin_path'."
         return 1
     end
     if test -d $plugin_path/completions && not contains $fish_complete_path $plugin_path/completions
@@ -16,4 +16,5 @@ function _reel_cmd_load \
     for file in $plugin_path/conf.d/*
         builtin source "$file"
     end
+    return 0
 end

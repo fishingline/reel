@@ -6,6 +6,8 @@ function setup \
     set -g TEST_PROJECT_DIR (realpath (status dirname)/../..)
     set -g TEST_TEMPDIR (mktemp -d)
     set -g reel_plugins_path "$TEST_TEMPDIR/plugins"
+    set -g orig_fish_function_path $fish_function_path
+    set -g orig_fish_complete_path $fish_complete_path
 
     @echo "=== $TEST_FILE ==="
 end
@@ -13,6 +15,8 @@ end
 function teardown
     set -e TEST_FILE
     set -e PROJECT_DIR
+    set fish_function_path $orig_fish_function_path
+    set fish_complete_path $orig_fish_complete_path
 
     if test -z "$TEST_TEMPDIR" || not test -d $TEST_TEMPDIR
         return
@@ -23,6 +27,7 @@ function teardown
     else
         @echo "Unexpected location for temp dir:" $TEST_TEMPDIR
     end
+    set -e TEST_TEMPDIR
 end
 
 function setup_all_fake_plugins \
@@ -52,7 +57,7 @@ function make_fake_plugin \
 end
 
 function fake_confd_contents -a name
-    echo "set -g loaded_plugins \$loaded_plugins $name"
+    echo "set -g fake_plugin_confd_loaded \$fake_plugin_confd_loaded $name"
 end
 
 function fake_function_contents -a name
