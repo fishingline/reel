@@ -8,8 +8,8 @@ test:
 
 .PHONY: pretty
 pretty:
-	fish_indent -w ./**/*.fish
-	fish_indent -w ./bin/runtests
+	fish -c "fish_indent -w ./**/*.fish; exit"
+	fish -c "fish_indent -w ./bin/runtests; exit"
 
 .PHONY: help
 help:
