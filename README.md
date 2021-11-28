@@ -17,9 +17,11 @@ TLDR; To start using reel to manage your fish plugins, simply add this bootstrap
 to your `fish.conf` file:
 
 ```fish
-set -q reel_plugins_path || set -g reel_plugins_path $__fish_config_dir/plugins
-test -d $reel_plugins_path/reel || git clone https://github.com/mattmc3/reel $reel_plugins_path/reel
-source $reel_plugins_path/reel/lib/bootstrap.fish
+set -q reel_plugins_path; or set -g reel_plugins_path $__fish_config_dir/plugins
+test -d $reel_plugins_path/reel; \
+    or git clone https://github.com/mattmc3/reel $reel_plugins_path/reel
+test -f $reel_plugins_path/reel/lib/bootstrap.fish; \
+    and source $reel_plugins_path/reel/lib/bootstrap.fish
 ```
 
 ## Introduction
@@ -47,6 +49,7 @@ fish shell plugins. The power of Reel is that:
   - Plugins you chose to install manually without using Reel
   - Plugins that use git submodules
   - Plugins that use 'install', 'update', or 'uninstall' events
+  - Plugins designed to override or extend other plugins
   - Plugins you are developing yourself
 
 Fish "Plugins" are simply directories that mimic the structure of `~/.config/fish`. Reel

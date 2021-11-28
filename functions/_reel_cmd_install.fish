@@ -25,4 +25,8 @@ function _reel_cmd_install \
     else
         _reel_gitclone_plugin $plugin $plugin_dir $_flag_branch
     end
+
+    # set -q reel_plugins_file || set -l reel_plugins_file $__fish_config_dir/reel_plugins
+    # test -f $reel_plugins_file || echo mattmc3/reel >$reel_plugins_file
+    # echo $repo >>$reel_plugins_file
 end

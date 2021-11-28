@@ -6,6 +6,7 @@ function setup \
     set -g TEST_PROJECT_DIR (realpath (status dirname)/../..)
     set -g TEST_TEMPDIR (mktemp -d)
     set -g reel_plugins_path "$TEST_TEMPDIR/plugins"
+    set -g reel_plugins_file "$TEST_TEMPDIR/reel_plugins"
     set -g orig_fish_function_path $fish_function_path
     set -g orig_fish_complete_path $fish_complete_path
 
@@ -32,19 +33,20 @@ end
 
 function setup_all_fake_plugins \
     --description "fake plugin creator"
-    make_fake_plugin a/fake1 functions
-    make_fake_plugin b/fake2 functions conf.d
-    make_fake_plugin c/fake3 functions conf.d completions
+    make_fake_plugin $reel_plugins_path a/fake1 functions
+    make_fake_plugin $reel_plugins_path b/fake2 functions conf.d
+    make_fake_plugin $reel_plugins_path c/fake3 functions conf.d completions
+    make_fake_plugin $TEST_TEMPDIR/projects myplugin functions conf.d completions
 end
 
 function make_fake_plugin \
     --description "fake plugin creator" \
-    --argument-names repo
+    --argument-names rootdir repo
 
     set plugin_name (string split / --max 1 --fields 2 --right -- /$repo)
     for dirname in $argv[2..]
-        mkdir -p $reel_plugins_path/$plugin_name/$dirname
-        set -l filename $reel_plugins_path/$plugin_name/$dirname/$plugin_name.fish
+        mkdir -p $rootdir/$plugin_name/$dirname
+        set -l filename $rootdir/$plugin_name/$dirname/$plugin_name.fish
         switch $dirname
             case functions
                 fake_function_contents $plugin_name >$filename
