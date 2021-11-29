@@ -11,9 +11,9 @@
 
 Simple, fast, elegant fish plugin management.
 
-## Fish plugin support
+## TLDR;
 
-TLDR; To start using reel to manage your fish plugins, simply clone this repo...
+To start using reel to manage your fish plugins, simply clone this repo...
 
 ```fish
 set --universal reel_plugins_path $__fish_config_dir/plugins
