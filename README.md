@@ -13,15 +13,18 @@ Simple, fast, elegant fish plugin management.
 
 ## Fish plugin support
 
-TLDR; To start using reel to manage your fish plugins, simply add this bootstrap snippet
-to your `fish.conf` file:
+TLDR; To start using reel to manage your fish plugins, simply clone this repo...
 
 ```fish
-set -q reel_plugins_path; or set -g reel_plugins_path $__fish_config_dir/plugins
-test -d $reel_plugins_path/reel; \
-    or git clone https://github.com/mattmc3/reel $reel_plugins_path/reel
-test -f $reel_plugins_path/reel/lib/bootstrap.fish; \
-    and source $reel_plugins_path/reel/lib/bootstrap.fish
+set --universal reel_plugins_path $__fish_config_dir/plugins
+git clone https://github.com/mattmc3/reel $reel_plugins_path/reel
+```
+
+...and then add this bootstrap snippet to your `fish.conf` file:
+
+```fish
+set -q reel_plugins_path || set -g reel_plugins_path $__fish_config_dir/plugins
+source $reel_plugins_path/reel/lib/bootstrap.fish
 ```
 
 ## Introduction
