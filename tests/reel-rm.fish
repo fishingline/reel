@@ -2,7 +2,7 @@
 # set thisdir (dirname $thisfile)
 # @echo "=== "(basename $thisfile)" ==="
 
-# source $thisdir/includes/setup_teardown.fish
+# source $thisdir/includes/bootstrap.fish
 
 # setup fakes
 

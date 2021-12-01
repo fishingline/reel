@@ -1,6 +1,6 @@
-source (status dirname)/includes/setup_teardown.fish
+source (status dirname)/includes/bootstrap.fish
 setup (realpath (status filename))
-setup_all_fake_plugins
+setup_fake_plugins
 
 source $TEST_PROJECT_DIR/functions/_reel_cmd_load.fish
 

@@ -1,4 +1,4 @@
-source (status dirname)/includes/setup_teardown.fish
+source (status dirname)/includes/bootstrap.fish
 setup (realpath (status filename))
 
 source $TEST_PROJECT_DIR/functions/_reel_cmd_list.fish
@@ -9,7 +9,7 @@ set errcode $status
 @test "'_reel_cmd_list' returns success (0)" $errcode -eq 0
 @test "'_reel_cmd_list' outputs nothing with no plugins" (count $reply) -eq 0
 
-setup_all_fake_plugins
+setup_fake_plugins
 set reply (_reel_cmd_list)
 set errcode $status
 @echo "--- list with 3 fake plugins ---"
