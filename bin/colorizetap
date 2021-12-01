@@ -2,22 +2,35 @@
 
 # https://testanything.org
 BEGIN {
-    BLUE="\033[0;34m"
-    CYAN="\033[0;36m"
-    GREEN="\033[0;32m"
+    BLACK="\033[0;30m"
     RED="\033[0;31m"
-    BRIGHTGREEN="\033[1;92m"
-    BRIGHTRED="\033[1;91m"
-    DIM="\033[2;3m"
+    GREEN="\033[0;32m"
+    YELLOW="\033[0;33m"
+    BLUE="\033[0;34m"
+    MAGENTA="\033[0;35m"
+    CYAN="\033[0;36m"
+    WHITE="\033[0;37m"
     NORMAL="\033[0;0m"
+
+    BBLACK="\033[30;1m"
+    BRED="\033[31;1m"
+    BGREEN="\033[32;1m"
+    BYELLOW="\033[33;1m"
+    BBLUE="\033[34;1m"
+    BMAGENTA="\033[35;1m"
+    BCYAN="\033[36;1m"
+    BWHITE="\033[37;1m"
+
+    DIM="\033[2;3m"
 }
+/^TAP version /        { print MAGENTA $0 NORMAL; next }
 /^ok /                 { print GREEN $0 NORMAL; next }
 /^not ok /             { print RED $0 NORMAL; next }
 /^# ===/               { print CYAN $0 NORMAL; next }
 /^# ---/               { print BLUE $0 NORMAL; next }
-/^# ok$/               { print BRIGHTGREEN $0 NORMAL; next }
-/^# pass /             { print BRIGHTGREEN $0 NORMAL; next }
-/^# fail /             { print BRIGHTRED $0 NORMAL; next }
+/^# ok$/               { print BGREEN $0 NORMAL; next }
+/^# pass /             { print BGREEN $0 NORMAL; next }
+/^# fail /             { print BRED $0 NORMAL; next }
 /^# /                  { print DIM $0 NORMAL; next }
 /[[:space:]]+actual:/  { print "  " $0; next }
 /[[:space:]]+at:/      { print "      " $0; next }
